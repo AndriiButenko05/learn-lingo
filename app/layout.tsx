@@ -24,7 +24,6 @@ export default function RootLayout({
       <body className={`${roboto.variable} antialiased`}>
         <Header />
         {children}
-        <Footer />
       </body>
     </html>
   );

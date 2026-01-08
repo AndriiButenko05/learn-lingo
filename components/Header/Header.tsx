@@ -1,6 +1,9 @@
+"use client";
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 export default function Header() {
+  const pathname = usePathname();
   return (
     <header className="pt-6 pb-6 text-[#121417] w-[1184px] mx-auto">
       <div className="container">
@@ -13,14 +16,16 @@ export default function Header() {
               height="28"
             ></Image>
             <Link href="/">
-              <p className="text-xl font-medium leading-6 ">LearnLingo</p>
+              <p className="text-xl font-medium leading-6">LearnLingo</p>
             </Link>
           </div>
           <ul className="flex flex-row gap-12">
             <li>
               <Link
                 href="/"
-                className="text-[16px] leading-5 hover:text-[#CBDED3] transition-colors ease-out"
+                className={`text-[16px] leading-5 hover:text-[#CBDED3] transition-colors ease-out ${
+                  pathname === "/" ? "text-emerald-600" : "text-black"
+                }`}
               >
                 Home
               </Link>
@@ -28,7 +33,9 @@ export default function Header() {
             <li>
               <Link
                 href="/teachers"
-                className="text-[16px] leading-5  hover:text-[#CBDED3] transition-colors ease-out"
+                className={`text-[16px] leading-5 hover:text-[#CBDED3] transition-colors ease-out ${
+                  pathname === "/teachers" ? "text-emerald-600" : "text-black"
+                }`}
               >
                 Teachers
               </Link>
