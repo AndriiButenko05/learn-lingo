@@ -1,5 +1,6 @@
 import Footer from "@/components/Footer/Footer";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -20,9 +21,12 @@ export default function Home() {
                 Tutors: Elevate your language proficiency to new heights by
                 connecting with highly qualified and experienced tutors.
               </p>
-              <button className="w-[267px] h-[60px] rounded-xl px-[88px] py-[16px] bg-[#9FBAAE] text-black font-bold text-center text-[17px] leading-7 hover:bg-[#CBDED3] transition-all ease-out">
+              <Link
+                href="/teachers"
+                className="w-[267px] h-[60px] rounded-xl px-[88px] py-[16px] bg-[#9FBAAE] text-black font-bold text-center text-[17px] leading-7 hover:bg-[#CBDED3] transition-all ease-out"
+              >
                 Get started
-              </button>
+              </Link>
             </div>
             <Image
               src="/hero.jpg"

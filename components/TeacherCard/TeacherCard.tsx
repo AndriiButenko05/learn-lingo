@@ -3,6 +3,7 @@ import { Teacher } from "@/types/teacher";
 import Image from "next/image";
 import { useState } from "react";
 import TeacherLevels from "../TeacherLevels/TeacherLevels";
+import BookLesson from "../BookLesson/BookLesson";
 
 interface TeacherCardProps {
   teacher: Teacher;
@@ -14,6 +15,7 @@ export default function TeacherCard({
   currentFilterLevel,
 }: TeacherCardProps) {
   const [isInfoOpen, setIsInfoOpen] = useState<boolean>(false);
+  const [isBookingOpen, setIsBookingOpen] = useState<boolean>(false);
 
   return (
     <li className="flex flex-row gap-12 items-start bg-[#FFFFFF] p-6 rounded-3xl w-full max-w-296">
@@ -30,12 +32,41 @@ export default function TeacherCard({
       <div className="flex-1">
         <div className="flex justify-between mb-2">
           <p className="text-[#8a8a89] text-[16px] font-medium">Languages</p>
-          <div className="flex gap-8">
-            <p>Rating: {teacher.rating}</p>
-            <p>
-              Price:{" "}
+          <div className="flex gap-8 items-center">
+            <div className="flex items-center gap-2">
+              <svg width={16} height={16} className="fill-white stroke-black">
+                <use href="/icons.svg#icon-book"></use>
+              </svg>
+              <p className="text-[#121417] text-[16px] font-medium leading-[24px]">
+                Lessons online
+              </p>
+            </div>
+
+            <p className="text-[#121417] text-[16px] font-medium leading-[24px] ">
+              Lessons done: {teacher.lessons_done}
+            </p>
+            <div className="flex items-center gap-2">
+              <svg width={16} height={16} className="fill-amber-400">
+                <use href="/icons.svg#icon-star"></use>
+              </svg>
+              <p className="text-[#121417] text-[16px] font-medium leading-[24px]">
+                Rating: {teacher.rating}
+              </p>
+            </div>
+
+            <p className="text-[#121417] text-[16px] font-medium leading-[24px]">
+              Price 1 / hour:{" "}
               <span className="text-[#38cd3e]">{teacher.price_per_hour}$</span>
             </p>
+            <button>
+              <svg
+                width={26}
+                height={26}
+                className="fill-white stroke-black cursor-pointer hover:stroke-red-300 transition-all ease-out"
+              >
+                <use href="/icons.svg#icon-heart"></use>
+              </svg>
+            </button>
           </div>
         </div>
 
@@ -98,10 +129,6 @@ export default function TeacherCard({
                 </li>
               ))}
             </ul>
-
-            <button className="py-4 px-12 bg-[#f4c550] rounded-xl font-bold mt-8">
-              Book trial lesson
-            </button>
           </div>
         )}
 
@@ -111,7 +138,24 @@ export default function TeacherCard({
             teacherLevels={teacher.levels}
           />
         </div>
+        {isInfoOpen && (
+          <button
+            className="py-4 px-12 bg-[#f4c550] rounded-xl font-bold mt-8 hover:bg-[#FFDC86] transition-colors"
+            onClick={() => setIsBookingOpen(!isBookingOpen)}
+          >
+            Book trial lesson
+          </button>
+        )}
       </div>
+      {isBookingOpen && (
+        <BookLesson
+          avatar_url={teacher.avatar_url}
+          name={teacher.name}
+          surname={teacher.surname}
+          setIsBookingOpen={setIsBookingOpen}
+          isBookingOpen={isBookingOpen}
+        ></BookLesson>
+      )}
     </li>
   );
 }
