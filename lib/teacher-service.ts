@@ -14,7 +14,7 @@ export const getTeachers = async (): Promise<Teacher[]> => {
     
     return Object.entries(data).map(([id, details]) => ({
       id,
-      ...(details as Teacher),
+      ...(details as Omit<Teacher, 'id'>),
     }));
   }
   
