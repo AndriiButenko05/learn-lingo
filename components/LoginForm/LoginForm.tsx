@@ -105,11 +105,10 @@ const LoginForm = ({ onSubmit }: LoginFormProps) => {
               </svg>
             )}
           </button>
-
-          <p className="text-[14px] text-red-600 mt-1">
-            {errors.password?.message}
-          </p>
         </div>
+        <p className="text-[14px] text-red-600 mt-1">
+          {errors.password?.message}
+        </p>
       </div>
 
       <button

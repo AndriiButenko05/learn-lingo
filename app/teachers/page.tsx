@@ -83,6 +83,9 @@ export default function Teachers() {
             currentFilterLevel={level}
           />
         )}
+        {filteredTeachers.length === 0 && !loading && (
+          <p className="text-center mt-10">Sorry, no teachers were found</p>
+        )}
       </div>
     </section>
   );
