@@ -3,6 +3,7 @@ import { Roboto } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header/Header";
 import Footer from "@/components/Footer/Footer";
+import { AuthContextProvider } from "@/context/AuthContext";
 
 const roboto = Roboto({
   variable: "--font-roboto",
@@ -22,8 +23,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${roboto.variable} antialiased`}>
-        <Header />
-        {children}
+        <AuthContextProvider>
+          <Header />
+          {children}
+        </AuthContextProvider>
       </body>
     </html>
   );

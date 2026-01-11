@@ -1,24 +1,67 @@
 "use client";
+
 import { Teacher } from "@/types/teacher";
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import TeacherLevels from "../TeacherLevels/TeacherLevels";
 import BookLesson from "../BookLesson/BookLesson";
 
+import { useAuth } from "@/context/AuthContext";
+import { ref, set, remove, onValue } from "firebase/database";
+import { db } from "@/lib/firebase";
+import toast from "react-hot-toast";
+
 interface TeacherCardProps {
   teacher: Teacher;
-  currentFilterLevel: string;
+  currentFilterLevel?: string;
 }
 
 export default function TeacherCard({
   teacher,
-  currentFilterLevel,
+  currentFilterLevel = "",
 }: TeacherCardProps) {
   const [isInfoOpen, setIsInfoOpen] = useState<boolean>(false);
   const [isBookingOpen, setIsBookingOpen] = useState<boolean>(false);
+  const [isFavorite, setIsFavorite] = useState<boolean>(false);
+
+  const { user } = useAuth();
+
+  useEffect(() => {
+    if (!user || !teacher.id) return;
+
+    const favoriteRef = ref(db, `users/${user.uid}/favorites/${teacher.id}`);
+
+    const unsubscribe = onValue(favoriteRef, (snapshot) => {
+      setIsFavorite(snapshot.exists());
+    });
+
+    return () => unsubscribe();
+  }, [user, teacher.id]);
+
+  const handleToggleFavorite = async () => {
+    if (!user) {
+      toast.error("Please log in to use favorites");
+      return;
+    }
+
+    const favoriteRef = ref(db, `users/${user.uid}/favorites/${teacher.id}`);
+
+    try {
+      if (isFavorite) {
+        await remove(favoriteRef);
+        toast.success("Removed from favorites");
+      } else {
+        await set(favoriteRef, teacher);
+        toast.success("Added to favorites");
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Error updating favorites");
+    }
+  };
 
   return (
-    <li className="flex flex-row gap-12 items-start bg-[#FFFFFF] p-6 rounded-3xl w-full max-w-296">
+    <li className="flex flex-row gap-12 items-start bg-[#FFFFFF] p-6 rounded-3xl w-full">
       <div className="relative shrink-0 p-3 border border-[#fbe9ba] rounded-full">
         <Image
           width={120}
@@ -27,6 +70,8 @@ export default function TeacherCard({
           alt={teacher.name}
           className="rounded-full"
         />
+
+        <div className="absolute top-[18px] right-[23px] w-3 h-3 bg-[#38cd3e] rounded-full border-2 border-white"></div>
       </div>
 
       <div className="flex-1">
@@ -55,14 +100,22 @@ export default function TeacherCard({
             </div>
 
             <p className="text-[#121417] text-[16px] font-medium leading-[24px]">
-              Price 1 / hour:{" "}
+              Price / 1 hour:{" "}
               <span className="text-[#38cd3e]">{teacher.price_per_hour}$</span>
             </p>
-            <button>
+
+            <button
+              onClick={handleToggleFavorite}
+              className="outline-none transition-transform active:scale-90"
+            >
               <svg
                 width={26}
                 height={26}
-                className="fill-white stroke-black cursor-pointer hover:stroke-red-300 transition-all ease-out"
+                className={`transition-colors duration-300 ${
+                  isFavorite
+                    ? "fill-[#F4C550] stroke-[#F4C550]"
+                    : "fill-transparent stroke-[#121417] hover:stroke-[#F4C550]"
+                }`}
               >
                 <use href="/icons.svg#icon-heart"></use>
               </svg>
@@ -77,7 +130,7 @@ export default function TeacherCard({
         <div className="space-y-2 mb-4">
           <p className="text-[#8a8a89]">
             Speaks:{" "}
-            <span className="text-[#121417] underline">
+            <span className="text-[#121417] underline decoration-solid">
               {teacher.languages.join(", ")}
             </span>
           </p>
@@ -88,7 +141,7 @@ export default function TeacherCard({
           <p className="text-[#8a8a89]">
             Conditions:{" "}
             <span className="text-[#121417]">
-              {teacher.conditions.join(", ")}
+              {teacher.conditions.join(" ")}
             </span>
           </p>
         </div>
@@ -120,9 +173,14 @@ export default function TeacherCard({
                       <p className="text-[#8a8a89] text-sm">
                         {review.reviewer_name}
                       </p>
-                      <p className="text-sm">
-                        {review.reviewer_rating.toFixed(1)}
-                      </p>
+                      <div className="flex items-center gap-1">
+                        <svg width={16} height={16} className="fill-amber-400">
+                          <use href="/icons.svg#icon-star"></use>
+                        </svg>
+                        <p className="text-sm">
+                          {review.reviewer_rating.toFixed(1)}
+                        </p>
+                      </div>
                     </div>
                   </div>
                   <p>{review.comment}</p>
@@ -138,6 +196,7 @@ export default function TeacherCard({
             teacherLevels={teacher.levels}
           />
         </div>
+
         {isInfoOpen && (
           <button
             className="py-4 px-12 bg-[#f4c550] rounded-xl font-bold mt-8 hover:bg-[#FFDC86] transition-colors"
@@ -147,6 +206,7 @@ export default function TeacherCard({
           </button>
         )}
       </div>
+
       {isBookingOpen && (
         <BookLesson
           avatar_url={teacher.avatar_url}
@@ -154,7 +214,7 @@ export default function TeacherCard({
           surname={teacher.surname}
           setIsBookingOpen={setIsBookingOpen}
           isBookingOpen={isBookingOpen}
-        ></BookLesson>
+        />
       )}
     </li>
   );

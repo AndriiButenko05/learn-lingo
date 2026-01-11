@@ -23,12 +23,27 @@ export default function Teachers() {
 
         if (snapshot.exists()) {
           const data = snapshot.val();
-          const list = Array.isArray(data) ? data : Object.values(data);
-          const cleanList = list.filter((item) => item !== null) as Teacher[];
+
+          let formattedList: Teacher[] = [];
+
+          if (Array.isArray(data)) {
+            formattedList = data.map((item, index) => ({
+              ...item,
+              id: index.toString(),
+            }));
+          } else {
+            formattedList = Object.keys(data).map((key) => ({
+              ...data[key],
+              id: key,
+            }));
+          }
+
+          const cleanList = formattedList.filter((item) => item && item.name);
+
           setAllTeachers(cleanList);
         }
       } catch (error) {
-        console.error("error:", error);
+        console.error("Помилка:", error);
       } finally {
         setLoading(false);
       }
@@ -38,16 +53,20 @@ export default function Teachers() {
 
   const filteredTeachers = useMemo(() => {
     return allTeachers.filter((teacher) => {
-      const matchLanguage = teacher.languages.includes(language);
-      const matchLevel = teacher.levels.includes(level);
+      const teacherLanguages = teacher.languages || [];
+      const matchLanguage = teacherLanguages.includes(language);
+      const teacherLevels = teacher.levels || [];
+      const matchLevel = teacherLevels.includes(level);
+
       const matchPrice = teacher.price_per_hour <= Number(price);
 
       return matchLanguage && matchLevel && matchPrice;
     });
   }, [allTeachers, language, level, price]);
+
   return (
-    <section className="bg-[#F6F6F6] py-[96px] ">
-      <div className="container">
+    <section className="bg-[#F6F6F6] py-[96px] min-h-screen">
+      <div className="container max-w-[1184px] mx-auto px-4">
         <Filters
           language={language}
           setLanguage={setLanguage}
@@ -56,24 +75,14 @@ export default function Teachers() {
           price={price}
           setPrice={setPrice}
         />
-        {loading && (
-          <div className="flex justify-center mt-8">
-            <p className="bg-[#FFFFFF] p-6 rounded-3xl text-[#121417] text-[24px] font-medium">
-              Loading Teachers...
-            </p>
-          </div>
+        {loading ? (
+          <p className="text-center mt-10">Loading...</p>
+        ) : (
+          <TeachersList
+            teachers={filteredTeachers}
+            currentFilterLevel={level}
+          />
         )}
-        {!loading && filteredTeachers.length < 1 && (
-          <div className="flex justify-center mt-8 ">
-            <p className="bg-[#FFFFFF] p-6 rounded-3xl text-[#121417] text-[24px] font-medium">
-              No teachers was found
-            </p>
-          </div>
-        )}
-        <TeachersList
-          teachers={filteredTeachers}
-          currentFilterLevel={level}
-        ></TeachersList>
       </div>
     </section>
   );

@@ -4,6 +4,7 @@ export interface Review {
 reviewer_rating: number;
 }
 export interface Teacher {
+  id: string;
   name: string;
   surname: string;
   languages: string[];
